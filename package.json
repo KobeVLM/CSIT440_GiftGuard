@@ -1,0 +1,23 @@
+{
+  "name": "x-1994889-csit-440-gift-guard",
+  "version": "1.0.0",
+  "description": "An automated fraud detection and dispute management platform",
+  "license": "UNLICENSED",
+  "scripts": {
+    "build": "now-sdk build",
+    "deploy": "now-sdk install",
+    "transform": "now-sdk transform",
+    "types": "now-sdk dependencies"
+  },
+  "devDependencies": {
+    "@servicenow/sdk": "4.6.0",
+    "@servicenow/glide": "26.0.1",
+    "eslint": "8.50.0",
+    "@servicenow/eslint-plugin-sdk-app-plugin": "4.6.0",
+    "@servicenow/isomorphic-rollup": "^1.2.3"
+  },
+  "dependencies": {
+    "react": "19.x",
+    "react-dom": "19.x"
+  }
+}
