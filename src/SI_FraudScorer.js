@@ -3,7 +3,7 @@
 // ============================================================
 // ServiceNow Settings:
 //   Name:          GiftGuardFraudScorer
-//   API Name:      x_[prefix]_giftguard.GiftGuardFraudScorer
+//   API Name:      x_1994889_csit440.GiftGuardFraudScorer
 //   Accessible From: All application scopes
 //   Active:        CHECKED ✓
 //   Client Callable: UNCHECKED (server-side only)
@@ -14,8 +14,8 @@
 // How to CALL this from a Business Rule:
 //   var scorer = new GiftGuardFraudScorer();
 //   var result = scorer.score(current);
-//   current.u_risk_score = result.risk_score;
-//   current.u_risk_level = result.risk_level;
+//   current.risk_score = result.risk_score;
+//   current.risk_level = result.risk_level;
 // ============================================================
 
 var GiftGuardFraudScorer = Class.create();
@@ -23,7 +23,8 @@ var GiftGuardFraudScorer = Class.create();
 GiftGuardFraudScorer.prototype = {
 
     initialize: function() {
-        this.tableName = gs.getProperty('x_giftguard.table.dispute', 'x_giftguard_gift_card_dispute');
+        this.disputeTable  = 'x_1994889_csit440_gift_card_dispute';
+        this.scoreLogTable = 'x_1994889_csit440_fraud_score_log';
     },
 
     /**
@@ -36,9 +37,9 @@ GiftGuardFraudScorer.prototype = {
         var factors   = {};
 
         // ── FACTOR 1: FRAUD AMOUNT ──────────────────────────
-        var exBal = parseFloat(dispute.u_expected_balance.toString()) || 0;
-        var rpBal = parseFloat(dispute.u_reported_balance.toString()) || 0;
-        var fraudAmt = (exBal > rpBal) ? (exBal - rpBal) : (parseFloat(dispute.u_fraud_amount.toString()) || 0);
+        var exBal    = parseFloat(dispute.expected_balance.toString()) || 0;
+        var rpBal    = parseFloat(dispute.reported_balance.toString()) || 0;
+        var fraudAmt = (exBal > rpBal) ? (exBal - rpBal) : (parseFloat(dispute.fraud_amount.toString()) || 0);
 
         var amtScore = 0;
         if      (fraudAmt >= 1000) { amtScore = 35; factors.amount = 'Large amount ($1000+): +35'; }
@@ -49,7 +50,7 @@ GiftGuardFraudScorer.prototype = {
         riskScore += amtScore;
 
         // ── FACTOR 2: EVIDENCE QUALITY ──────────────────────
-        var evType  = (dispute.u_evidence_type.toString() || '').toLowerCase();
+        var evType  = (dispute.evidence_type.toString() || '').toLowerCase();
         var evScore = 0;
 
         if (!evType || evType === 'none' || evType === '') {
@@ -69,7 +70,7 @@ GiftGuardFraudScorer.prototype = {
 
         // ── FACTOR 3: TIME-BASED RISK ────────────────────────
         var timeScore = 0;
-        var txDate = dispute.u_transaction_date.toString();
+        var txDate = dispute.transaction_date.toString();
         if (txDate && txDate.length >= 13) {
             try {
                 var hourStr = txDate.substring(11, 13);
@@ -89,12 +90,12 @@ GiftGuardFraudScorer.prototype = {
 
         // ── FACTOR 4: VOLUME / CARD HISTORY ─────────────────
         var volScore = 0;
-        var maskedCard = dispute.u_gift_card_number.toString();
+        var maskedCard = dispute.gift_card_number.toString();
         if (maskedCard && maskedCard.length >= 4) {
             var lastFour = maskedCard.slice(-4);
             var monthAgo = gs.dateAdd(gs.now(), -30, 'day');
-            var volGR = new GlideRecord(dispute.getTableName());
-            volGR.addQuery('u_gift_card_number', 'ENDSWITH', lastFour);
+            var volGR = new GlideRecord(this.disputeTable);
+            volGR.addQuery('gift_card_number', 'ENDSWITH', lastFour);
             volGR.addQuery('sys_created_on', '>=', monthAgo);
             volGR.addQuery('sys_id', '!=', dispute.sys_id);
             volGR.query();
@@ -109,7 +110,7 @@ GiftGuardFraudScorer.prototype = {
 
         // ── FACTOR 5: ACCOUNT AGE ────────────────────────────
         var acctScore = 0;
-        var email = dispute.u_customer_email.toString();
+        var email = dispute.customer_email.toString();
         if (email) {
             var uGR = new GlideRecord('sys_user');
             uGR.addQuery('email', email);
@@ -130,7 +131,7 @@ GiftGuardFraudScorer.prototype = {
 
         // ── FACTOR 6: DESCRIPTION NLP ────────────────────────
         var descScore = 0;
-        var desc = (dispute.u_dispute_description.toString() || '').toLowerCase();
+        var desc = (dispute.dispute_description.toString() || '').toLowerCase();
         var highRiskKw = ['hacked', 'stolen', 'unauthorized', 'compromised', 'scammed', 'drained', 'phished'];
         var kwMatches = 0;
         for (var i = 0; i < highRiskKw.length; i++) {
@@ -154,11 +155,11 @@ GiftGuardFraudScorer.prototype = {
         for (var k in factors) { reasoning.push(factors[k]); }
 
         return {
-            risk_score: riskScore,
-            risk_level: riskLevel,
-            factors:    factors,
+            risk_score:   riskScore,
+            risk_level:   riskLevel,
+            factors:      factors,
             fraud_amount: fraudAmt,
-            reasoning:  reasoning.join(' | ')
+            reasoning:    reasoning.join(' | ')
         };
     },
 
@@ -167,15 +168,14 @@ GiftGuardFraudScorer.prototype = {
      */
     logScore: function(disputeSysId, result) {
         try {
-            var tbl = 'x_' + gs.getProperty('glide.appcreator.company.code') + '_giftguard_fraud_score_log';
-            var logGR = new GlideRecord(tbl);
+            var logGR = new GlideRecord(this.scoreLogTable);
             logGR.initialize();
-            logGR.u_gift_card_dispute = disputeSysId;
-            logGR.u_scoring_time      = new GlideDateTime();
-            logGR.u_risk_score        = result.risk_score;
-            logGR.u_ai_service_used   = 'GiftGuard Rule-Based Engine v1.0';
-            logGR.u_input_factors     = JSON.stringify(result.factors);
-            logGR.u_reasoning         = result.reasoning;
+            logGR.gift_card_dispute = disputeSysId;
+            logGR.scoring_time      = new GlideDateTime();
+            logGR.risk_score        = result.risk_score;
+            logGR.ai_service_used   = 'GiftGuard Rule-Based Engine v1.0';
+            logGR.input_factors     = JSON.stringify(result.factors);
+            logGR.reasoning         = result.reasoning;
             logGR.insert();
         } catch(e) {
             gs.error('[GiftGuard] Scoring log error: ' + e.message);

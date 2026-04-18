@@ -3,7 +3,7 @@
 // ============================================================
 // ServiceNow Settings (copy these EXACTLY):
 //   Name:    GiftGuard - Before Insert - Mask Card Number
-//   Table:   x_[prefix]_giftguard_gift_card_dispute
+//   Table:   x_1994889_csit440_gift_card_dispute
 //   When:    before
 //   Insert:  CHECKED ✓
 //   Update:  UNCHECKED
@@ -16,7 +16,7 @@
 
 (function executeRule(current, previous) {
     try {
-        var cardNumber = current.u_gift_card_number.toString();
+        var cardNumber = current.gift_card_number.toString();
 
         if (cardNumber && cardNumber.length > 4) {
             // Strip any spaces/dashes, keep only digits
@@ -24,7 +24,7 @@
 
             if (digitsOnly.length > 4) {
                 var lastFour = digitsOnly.substring(digitsOnly.length - 4);
-                current.u_gift_card_number = '****-****-****-' + lastFour;
+                current.gift_card_number = '****-****-****-' + lastFour;
             }
         }
 

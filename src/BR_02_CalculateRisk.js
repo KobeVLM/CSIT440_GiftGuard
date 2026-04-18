@@ -3,7 +3,7 @@
 // ============================================================
 // ServiceNow Settings:
 //   Name:    GiftGuard - Before Insert - Calculate Risk Score
-//   Table:   x_[prefix]_giftguard_gift_card_dispute
+//   Table:   x_1994889_csit440_gift_card_dispute
 //   When:    before
 //   Insert:  CHECKED ✓
 //   Update:  UNCHECKED
@@ -20,15 +20,15 @@
         var factors = {};
 
         // ── FACTOR 1: FRAUD AMOUNT ──────────────────────────────
-        var expectedBal = parseFloat(current.u_expected_balance) || 0;
-        var reportedBal = parseFloat(current.u_reported_balance) || 0;
+        var expectedBal = parseFloat(current.expected_balance) || 0;
+        var reportedBal = parseFloat(current.reported_balance) || 0;
         var fraudAmount = expectedBal - reportedBal;
 
         // Auto-calculate fraud_amount field
         if (fraudAmount > 0) {
-            current.u_fraud_amount = fraudAmount;
+            current.fraud_amount = fraudAmount;
         } else {
-            fraudAmount = parseFloat(current.u_fraud_amount) || 0;
+            fraudAmount = parseFloat(current.fraud_amount) || 0;
         }
 
         var amtScore = 0;
@@ -40,8 +40,8 @@
         riskScore += amtScore;
 
         // ── FACTOR 2: EVIDENCE QUALITY ──────────────────────────
-        var hasAttachment = (current.u_evidence_type.toString() !== '' && current.u_evidence_type.toString() !== 'none');
-        var evidenceType  = current.u_evidence_type.toString();
+        var hasAttachment = (current.evidence_type.toString() !== '' && current.evidence_type.toString() !== 'none');
+        var evidenceType  = current.evidence_type.toString();
         var evScore = 0;
 
         if (!hasAttachment || evidenceType === 'none' || evidenceType === '') {
@@ -61,7 +61,7 @@
 
         // ── FACTOR 3: TIME-BASED RISK ───────────────────────────
         var timeScore = 0;
-        var txDateStr = current.u_transaction_date.toString();
+        var txDateStr = current.transaction_date.toString();
         if (txDateStr) {
             try {
                 var hour = parseInt(txDateStr.substring(11, 13)) || 12;
@@ -78,11 +78,11 @@
 
         // ── FACTOR 4: VOLUME RISK (same card, last 30 days) ─────
         var volScore = 0;
-        var maskedCard = current.u_gift_card_number.toString();
+        var maskedCard = current.gift_card_number.toString();
         if (maskedCard) {
             var monthAgo = gs.dateAdd(gs.now(), -30, 'day');
-            var gr = new GlideRecord('x_' + gs.getProperty('glide.appcreator.company.code') + '_giftguard_gift_card_dispute');
-            gr.addQuery('u_gift_card_number', 'CONTAINS', maskedCard.slice(-4));
+            var gr = new GlideRecord('x_1994889_csit440_gift_card_dispute');
+            gr.addQuery('gift_card_number', 'CONTAINS', maskedCard.slice(-4));
             gr.addQuery('sys_created_on', '>=', monthAgo);
             gr.query();
             var cnt = gr.getRowCount();
@@ -96,7 +96,7 @@
 
         // ── FACTOR 5: ACCOUNT AGE ───────────────────────────────
         var acctScore = 0;
-        var custEmail = current.u_customer_email.toString();
+        var custEmail = current.customer_email.toString();
         if (custEmail) {
             var userGR = new GlideRecord('sys_user');
             userGR.addQuery('email', custEmail);
@@ -115,7 +115,7 @@
 
         // ── FACTOR 6: DESCRIPTION KEYWORD ANALYSIS ─────────────
         var descScore = 0;
-        var desc = (current.u_dispute_description.toString() || '').toLowerCase();
+        var desc = (current.dispute_description.toString() || '').toLowerCase();
         var highRiskWords = ['hacked', 'stolen', 'unauthorized', 'compromised', 'scammed', 'drained'];
         var matchCount = 0;
         for (var w = 0; w < highRiskWords.length; w++) {
@@ -135,8 +135,8 @@
         else if (riskScore >= 60) riskLevel = 'high';
         else if (riskScore >= 40) riskLevel = 'medium';
 
-        current.u_risk_score = riskScore;
-        current.u_risk_level = riskLevel;
+        current.risk_score = riskScore;
+        current.risk_level = riskLevel;
 
         gs.info('[GiftGuard] Risk Score calculated: ' + riskScore + ' (' + riskLevel + ') | Factors: ' + JSON.stringify(factors));
 

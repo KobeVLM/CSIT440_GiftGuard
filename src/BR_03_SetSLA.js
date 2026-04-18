@@ -3,7 +3,7 @@
 // ============================================================
 // ServiceNow Settings:
 //   Name:    GiftGuard - After Insert - Set SLA and Log Score
-//   Table:   x_[prefix]_giftguard_gift_card_dispute
+//   Table:   x_1994889_csit440_gift_card_dispute
 //   When:    after
 //   Insert:  CHECKED ✓
 //   Update:  UNCHECKED
@@ -17,7 +17,7 @@
 
 (function executeRule(current, previous) {
     try {
-        var riskLevel = current.u_risk_level.toString();
+        var riskLevel = current.risk_level.toString();
         var slaDays = 5; // default
 
         // SLA based on risk level
@@ -35,22 +35,22 @@
         // Update the dispute record with SLA date
         var disputeGR = new GlideRecord(current.getTableName());
         disputeGR.get(current.sys_id);
-        disputeGR.u_sla_target = slaDate;
+        disputeGR.sla_target = slaDate;
         disputeGR.autoSysFields(false); // Don't change sys_updated_by etc.
         disputeGR.setWorkflow(false);   // Don't re-trigger business rules
         disputeGR.update();
 
         // Write to Fraud Scoring Log
-        var logGR = new GlideRecord('x_' + gs.getProperty('glide.appcreator.company.code') + '_giftguard_fraud_score_log');
+        var logGR = new GlideRecord('x_1994889_csit440_fraud_score_log');
         logGR.initialize();
-        logGR.u_gift_card_dispute = current.sys_id;
-        logGR.u_scoring_time      = new GlideDateTime();
-        logGR.u_risk_score        = current.u_risk_score;
-        logGR.u_ai_service_used   = 'Rule-Based Scoring Engine v1.0';
-        logGR.u_reasoning         = 'Scored using 6 factors: Amount (' + current.u_fraud_amount
-                                  + '), Evidence (' + current.u_evidence_type
-                                  + '), Time, Volume, Account Age, Description. '
-                                  + 'SLA set to ' + slaDays + ' day(s).';
+        logGR.gift_card_dispute = current.sys_id;
+        logGR.scoring_time      = new GlideDateTime();
+        logGR.risk_score        = current.risk_score;
+        logGR.ai_service_used   = 'Rule-Based Scoring Engine v1.0';
+        logGR.reasoning         = 'Scored using 6 factors: Amount (' + current.fraud_amount
+                                + '), Evidence (' + current.evidence_type
+                                + '), Time, Volume, Account Age, Description. '
+                                + 'SLA set to ' + slaDays + ' day(s).';
         logGR.insert();
 
         gs.info('[GiftGuard] BR_03 SLA set: ' + slaDate + ' | Score logged for dispute: ' + current.number);
