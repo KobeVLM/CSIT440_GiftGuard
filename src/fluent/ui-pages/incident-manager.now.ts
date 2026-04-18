@@ -1,12 +1,12 @@
 import '@servicenow/sdk/global'
 import { UiPage } from '@servicenow/sdk/core'
-import incidentPage from '../../client/index.html'
+import giftGuardPage from '../../client/index.html'
 
 UiPage({
-    $id: Now.ID['incident-manager-page'],
+    $id: Now.ID['incident-manager-page'], // Reuses existing registered UI Page record
     endpoint: 'x_1994889_csit440_incident_manager.do',
-    description: 'Incident Response Manager UI Page',
+    description: 'GiftGuard — Gift Card Fraud Protection Portal',
     category: 'general',
-    html: incidentPage,
+    html: giftGuardPage,
     direct: true,
 })

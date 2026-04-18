@@ -1,0 +1,231 @@
+/* ── DisputeStatus.css ───────────────────────────────────── */
+
+.ds-wrap { max-width: 680px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px; }
+
+.ds-header { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.ds-icon { font-size: 36px; }
+.ds-title { font-size: 24px; font-weight: 700; color: var(--text-primary); margin: 0; }
+.ds-subtitle { font-size: 14px; color: var(--text-secondary); margin: 0; }
+
+/* Search */
+.ds-search-form { display: flex; flex-direction: column; gap: 8px; }
+
+.ds-search-row { display: flex; gap: 10px; }
+
+.ds-search-input {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.12);
+    border-radius: 10px;
+    padding: 12px 18px;
+    color: var(--text-primary);
+    font-size: 18px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.ds-search-input:focus { border-color: var(--accent); background: rgba(79,195,247,0.06); }
+.ds-search-input::placeholder { font-size: 14px; font-weight: 400; letter-spacing: 0; color: rgba(255,255,255,0.25); }
+
+.ds-search-btn {
+    padding: 12px 24px;
+    background: var(--accent);
+    border: none;
+    border-radius: 10px;
+    color: #0d1b2a;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 110px;
+}
+
+.ds-search-btn:hover:not(:disabled) { background: #81d4fa; }
+.ds-search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.ds-search-hint { font-size: 11px; color: var(--text-secondary); text-align: center; margin: 0; }
+
+.ds-spinner {
+    width: 16px; height: 16px;
+    border: 2px solid rgba(0,0,0,0.2);
+    border-top-color: #0d1b2a;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Alerts */
+.ds-alert {
+    border-radius: 10px;
+    padding: 14px 18px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+.ds-alert--error   { background: rgba(239,83,80,0.12); border: 1px solid rgba(239,83,80,0.3); color: #ef9a9a; }
+.ds-alert--info    { background: rgba(79,195,247,0.08); border: 1px solid rgba(79,195,247,0.2); color: var(--text-secondary); }
+.ds-alert--success { background: rgba(102,187,106,0.1); border: 1px solid rgba(102,187,106,0.3); color: #a5d6a7; }
+
+/* Result card */
+.ds-result { display: flex; flex-direction: column; gap: 16px; }
+
+/* Status banner */
+.ds-status-banner {
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(255,255,255,0.03);
+}
+
+.ds-status-icon { font-size: 32px; }
+
+.ds-status-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-secondary);
+    margin: 0 0 2px;
+}
+
+.ds-status-value { font-size: 22px; font-weight: 700; margin: 0; }
+
+.ds-dispute-num {
+    margin-left: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-secondary);
+    opacity: 0.6;
+}
+
+/* Info grid */
+.ds-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+@media (max-width: 580px) { .ds-info-grid { grid-template-columns: 1fr 1fr; } }
+
+.ds-info-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ds-info-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+}
+
+.ds-info-value { font-size: 14px; color: var(--text-primary); font-weight: 500; }
+.ds-info-value--highlight { color: var(--danger); font-size: 18px; font-weight: 700; }
+
+/* Risk bar */
+.ds-risk {
+    border: 1px solid;
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.ds-risk-label { font-size: 12px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; }
+
+.ds-risk-right { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 160px; }
+
+.ds-risk-bar-wrap {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.ds-risk-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.8s ease;
+}
+
+.ds-risk-score { font-size: 12px; font-weight: 600; }
+
+/* Timeline */
+.ds-timeline {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.ds-timeline-title {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-secondary);
+    margin: 0 0 12px;
+}
+
+.ds-tl-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    opacity: 0.4;
+}
+
+.ds-tl-item:last-child { border-bottom: none; }
+.ds-tl-item.done { opacity: 1; }
+
+.ds-tl-dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.05);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.ds-tl-item.done .ds-tl-dot {
+    background: rgba(102,187,106,0.2);
+    border-color: var(--success);
+    color: var(--success);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.ds-tl-content { display: flex; flex-direction: column; gap: 2px; }
+.ds-tl-label   { font-size: 13px; color: var(--text-primary); font-weight: 500; }
+.ds-tl-date    { font-size: 11px; color: var(--text-secondary); }
