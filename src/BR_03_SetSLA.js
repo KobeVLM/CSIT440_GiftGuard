@@ -47,7 +47,7 @@
         logGR.scoring_time      = new GlideDateTime();
         logGR.risk_score        = current.risk_score;
         logGR.ai_service_used   = 'Rule-Based Scoring Engine v1.0';
-        logGR.reasoning         = 'Scored using 6 factors: Amount (' + current.fraud_amount
+        logGR.reasoning         = 'Scored using 6 factors: Amount (' + current.fraud_amoun0
                                 + '), Evidence (' + current.evidence_type
                                 + '), Time, Volume, Account Age, Description. '
                                 + 'SLA set to ' + slaDays + ' day(s).';

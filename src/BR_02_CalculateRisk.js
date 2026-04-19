@@ -26,9 +26,9 @@
 
         // Auto-calculate fraud_amount field
         if (fraudAmount > 0) {
-            current.fraud_amount = fraudAmount;
+            current.fraud_amoun0 = fraudAmount;
         } else {
-            fraudAmount = parseFloat(current.fraud_amount) || 0;
+            fraudAmount = parseFloat(current.fraud_amoun0) || 0;
         }
 
         var amtScore = 0;
@@ -60,8 +60,8 @@
         riskScore += evScore;
 
         // ── FACTOR 3: TIME-BASED RISK ───────────────────────────
-        var timeScore = 0;
-        var txDateStr = current.transaction_date.toString();
+        // 2) Time Factor (Days since transaction_dat0)
+        var txDateStr = current.transaction_dat0.toString();
         if (txDateStr) {
             try {
                 var hour = parseInt(txDateStr.substring(11, 13)) || 12;
